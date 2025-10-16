@@ -1,0 +1,38 @@
+{
+	"appTitle": "Э-Күндөлүк",
+	"info": "Информация",
+	"links": "Ссылки",
+	"menu": {
+		"notifications": "Уведомления",
+		"grades": "Оценки",
+		"assignments": "Задания",
+		"attendance": "Посещаемость",
+		"report": "Сообщить",
+		"assistant": "ИИ Помощник",
+		"settings": "Настройки",
+		"reports": "Отчеты"
+	},
+	"pages": {
+		"home": "Главная",
+		"reports": "Отчеты",
+		"settings": "Настройки"
+	},
+	"auth": {
+		"loginTitle": "Вход",
+		"studentLoginTitle": "Вход для ученика",
+		"loginTeacher": "Вход для учителя",
+		"loginParent": "Вход для родителей",
+		"loginStudent": "Вход для ученика",
+		"username": "Пользователь",
+		"password": "Пароль",
+		"remember": "Запомнить",
+		"login": "Войти",
+		"logout": "Выйти",
+		"back": "Назад",
+		"cancel": "Отмена",
+		"warning": "Предупреждение",
+		"confirmation": "Вы уверены, что хотите выйти?",
+		"usernamePlaceholder": "Имя пользователя",
+		"passwordPlaceholder": "Пароль"
+	}
+}

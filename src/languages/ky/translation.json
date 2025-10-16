@@ -1,0 +1,40 @@
+{
+	"appTitle": "Э-Күндөлүк",
+	"info": "Маалымат",
+	"links": "Шилтемелер",
+	"menu": {
+		"notifications": "Билдирүүлөр",
+		"grades": "Баалар",
+		"assignments": "Тапшырмалар",
+		"attendance": "Катышуу",
+		"report": "Коркпо, билдир!",
+		"assistant": "ЖА Жардамчы",
+		"settings": "Орнотуулар",
+		"reports": "Отчеттор"
+	},
+	"pages": {
+		"home": "Башкы бет",
+		"reports": "Отчеттор",
+		"settings": "Орнотуулар"
+	},
+	"auth": {
+		"loginTitle": "Кирүү",
+		"studentLoginTitle": "Окуучу үчүн кирүү",
+		"loginTeacher": "Мугалим үчүн кирүү",
+		"loginParent": "Ата-энелер үчүн кирүү",
+		"loginStudent": "Окуучу үчүн кирүү",
+		"username": "Колдонуучу",
+		"password": "Сырсөз",
+		"remember": "Эстеп калуу",
+		"login": "Кирүү",
+		"logout": "Чыгуу",
+		"back": "Артка",
+		"cancel": "Баш тартуу",
+		"warning": "Эскертүү",
+		"confirmation": "Чын эле чыгып кеткиңиз келеби?",
+		"usernamePlaceholder": "Колдонуучунун аты",
+		"passwordPlaceholder": "Сырсөз"
+	}
+}
+
+

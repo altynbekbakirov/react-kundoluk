@@ -1,0 +1,28 @@
+.sidebar .nav-link {
+	color: #333;
+	border-radius: 8px;
+}
+
+.sidebar .nav-link.active {
+	background-color: #0d6efd;
+	color: #fff;
+}
+
+.sidebar .nav-link.active .bi,
+.sidebar .nav-link.active span {
+	color: #fff;
+}
+
+.sidebar .nav-link.active:hover {
+	color: #ffc107; /* change text color on hover when active */
+}
+
+.sidebar .nav-link.active:hover .bi,
+.sidebar .nav-link.active:hover span {
+	color: #ffc107; /* change icon and label color on hover when active */
+}
+
+.sidebar .nav-link:hover {
+	background-color: #e9ecef;
+}
+
