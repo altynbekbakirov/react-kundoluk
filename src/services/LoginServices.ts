@@ -1,8 +1,8 @@
 import axios from "axios";
 import { LoginModel } from "../models/LoginModel";
 import { webUrl } from "./CommonServices";
-import { ApiResponse } from "../models/ApiResponse";
 import { ErrorResponse } from "../models/ErrorResponse";
+import { BaseResponseListModel } from "../models/BaseResponseListModel";
 
 export class PasswordChangeException extends Error {
   constructor(message: string) {
@@ -92,13 +92,13 @@ export async function authTeacherUser({
         const result = await response.json();
 
         if (response.ok) {
-            const loginResponse: ApiResponse<LoginModel> = result;
+            const loginResponse: BaseResponseListModel<LoginModel> = result;
 
-            if (!loginResponse.data) {
+            if (!loginResponse.actionResult) {
                 throw new Error('No data in response');
             }
 
-            return loginResponse.data;
+            return loginResponse.actionResult;
         } else {
             const errorResponse: ErrorResponse = result;
             throw new Error(errorResponse.resultMessage || 'Authentication failed');

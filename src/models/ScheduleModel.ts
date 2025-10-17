@@ -1,0 +1,45 @@
+import { MarkModel } from "./MarkModel";
+import { RoomModel } from "./RoomModel";
+import { SchoolModel } from "./SchoolModel";
+import { StudentModel } from "./StudentModel";
+import { SubjectModel } from "./SubjectModel";
+import { TaskModel } from "./TaskModel";
+import { TeacherModel } from "./TeacherModel";
+import { TopicModel } from "./TopicModel";
+
+export interface ScheduleModel {
+    id?: number;
+    uid?: string;
+    okpo?: string;
+    scheduleItemId?: string;
+    grade?: number;
+    gradeId?: string;
+    subjectId?: string;
+    letter?: string;
+    group?: number;
+    year?: number;
+    term?: number;
+    month?: number;
+    day?: number;
+    shift?: number;
+    startTime?: string;
+    endTime?: string;
+    room?: string;
+    roomData?: RoomModel;
+    lang?: string;
+    status?: string;
+    note?: string;
+    schoolNameKg?: string;
+    schoolNameRu?: string;
+    teacher?: TeacherModel;
+    subject?: SubjectModel;
+    topic?: TopicModel;
+    task?: TaskModel;
+    lastTask?: TaskModel;
+    school?: SchoolModel;
+    students?: StudentModel[];
+    marks?: MarkModel[];
+    isTwelve?: boolean;
+    allTopics?: TopicModel[];
+    lesson?: number;
+}

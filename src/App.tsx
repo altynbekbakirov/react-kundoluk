@@ -11,12 +11,12 @@ import ParentLogin from './pages/auth/ParentLogin'
 import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 import Notifications from './pages/Notifications'
-import Grades from './pages/Grades'
 import Assignments from './pages/Assignments'
 import Attendance from './pages/Attendance'
 import Report from './pages/Report'
 import Assistant from './pages/Assistant'
 import ProtectedRoute from './layouts/ProtectedRoute'
+import StudentGrades from './pages/StudentGrades'
 
 const router = createBrowserRouter([
   {
@@ -28,7 +28,7 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <Home /> },
           { path: 'notifications', element: <Notifications /> },
-          { path: 'grades', element: <Grades /> },
+          { path: 'grades', element: <StudentGrades /> },
           { path: 'assignments', element: <Assignments /> },
           { path: 'attendance', element: <Attendance /> },
           { path: 'report', element: <Report /> },

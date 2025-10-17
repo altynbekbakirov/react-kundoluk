@@ -1,4 +1,4 @@
-export type Topic = {
+export type TopicModel = {
   code?: number
   name?: string
   short?: string
