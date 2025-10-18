@@ -7,10 +7,10 @@ export type MenuItem = {
 
 export const sidebarMenu: MenuItem[] = [
   { path: '/', labelKey: 'pages.home', icon: 'house' },
-  { path: '/notifications', labelKey: 'menu.notifications', icon: 'bell' },
   { path: '/grades', labelKey: 'menu.grades', icon: 'clipboard-check' },
   { path: '/assignments', labelKey: 'menu.assignments', icon: 'book' },
   { path: '/attendance', labelKey: 'menu.attendance', icon: 'calendar-check' },
+  { path: '/notifications', labelKey: 'menu.notifications', icon: 'bell' },
   { path: '/report', labelKey: 'menu.report', icon: 'exclamation-circle' },
   { path: '/assistant', labelKey: 'menu.assistant', icon: 'robot' },
 ];

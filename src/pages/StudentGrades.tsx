@@ -1,140 +1,29 @@
 import { useEffect, useRef, useState } from "react";
-import { ScheduleModel } from "../models/ScheduleModel";
-import { calculateAverage, formatDate, getMarkColor, getMarkTypeLabel, getStudentTermMarks, groupAndSortGrades } from "../services/MarkServices";
-import { SubjectModel } from "../models/SubjectModel";
-import { MarkModel } from "../models/MarkModel";
+import { useTranslation } from "react-i18next";
+import { GradesDialog } from "../components/GradesDialog";
+import { MarkItem } from "../components/MarkItem";
 import { useAuth } from "../hooks/useAuth";
-
-const MarkContainer: React.FC<{ mark: MarkModel }> = ({ mark }) => {
-  const displayValue = mark.absent ? 'н' : (mark.customMark || mark.mark || '');
-  const bgColor = getMarkColor(mark.mark, mark.absent);
-
-  return (
-    <div
-      style={{
-        display: 'inline-block',
-        minWidth: '32px',
-        height: '32px',
-        borderRadius: '4px',
-        backgroundColor: bgColor,
-        color: 'white',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        lineHeight: '32px',
-        fontSize: '14px',
-        padding: '0 6px'
-      }}
-    >
-      {displayValue}
-    </div>
-  );
-};
-
-const GradesDialog: React.FC<{
-  show: boolean;
-  onHide: () => void;
-  subject: SubjectModel;
-  marks: MarkModel[];
-  languageCode: string;
-}> = ({ show, onHide, subject, marks, languageCode }) => {
-  if (!show) return null;
-
-  return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000
-    }} onClick={onHide}>
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        maxWidth: '800px',
-        width: '90%',
-        maxHeight: '80vh',
-        overflow: 'auto',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
-      }} onClick={(e) => e.stopPropagation()}>
-        <div style={{ padding: '20px', borderBottom: '1px solid #e0e0e0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0 }}>
-              {languageCode === 'ru' ? subject.nameRu : subject.nameKg}
-            </h3>
-            <button onClick={onHide} style={{
-              background: 'none',
-              border: 'none',
-              fontSize: '24px',
-              cursor: 'pointer',
-              color: '#666'
-            }}>×</button>
-          </div>
-        </div>
-
-        <div style={{ padding: '20px' }}>
-          <div style={{ marginBottom: '16px' }}>
-            <strong>Учитель:</strong> {marks[0]?.teacher?.lastName} {marks[0]?.teacher?.firstName}
-          </div>
-          <div style={{ marginBottom: '20px' }}>
-            <strong>Средний балл:</strong> {calculateAverage(marks).toFixed(2)}
-          </div>
-
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f5f5f5' }}>
-                <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Дата</th>
-                <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Оценка</th>
-                <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Тип</th>
-                <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Описание</th>
-              </tr>
-            </thead>
-            <tbody>
-              {marks.map((mark, idx) => (
-                <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '12px' }}>{mark.createdAt ? formatDate(mark.createdAt.toISOString()) : '-'}</td>
-                  <td style={{ padding: '12px' }}><MarkContainer mark={mark} /></td>
-                  <td style={{ padding: '12px' }}>{getMarkTypeLabel(mark.markType)}</td>
-                  <td style={{ padding: '12px' }}>{mark.note || '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div style={{ padding: '16px 20px', borderTop: '1px solid #e0e0e0', textAlign: 'right' }}>
-          <button onClick={onHide} style={{
-            padding: '8px 20px',
-            backgroundColor: '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}>Закрыть</button>
-        </div>
-      </div>
-    </div>
-  );
-};
+import { MarkModel } from "../models/MarkModel";
+import { ScheduleModel } from "../models/ScheduleModel";
+import { SubjectModel } from "../models/SubjectModel";
+import { getTerm } from "../services/CommonServices";
+import { calculateAverage, getMarkTypeLabel, getMarksBySubject, getStudentTermMarks, groupAndSortGrades } from "../services/MarkServices";
 
 function StudentGrades(): JSX.Element {
-  const [term, setTerm] = useState<number>(1);
+  const [term, setTerm] = useState<number>(getTerm(new Date()));
   const [schedules, setSchedules] = useState<ScheduleModel[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showUpButton, setShowUpButton] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("topic");
-  const [languageCode] = useState<string>('ru');
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [selectedSubject, setSelectedSubject] = useState<SubjectModel | null>(null);
   const [selectedMarks, setSelectedMarks] = useState<MarkModel[]>([]);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const { authData } = useAuth();
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language;
 
   const fetchGrades = async () => {
     setLoading(true);
@@ -144,8 +33,33 @@ function StudentGrades(): JSX.Element {
         type: authData.type,
         token: authData.token,
         term,
+        withMarks: true
       });
-      setSchedules(data);
+
+      // Convert snake_case to camelCase and parse dates
+      const processedData = data.map((schedule: any) => ({
+        ...schedule,
+        marks: schedule.marks?.map((mark: any) => ({
+          ...mark,
+          markId: mark.mark_id,
+          lsUid: mark.ls_uid,
+          studentPin: mark.student_pin,
+          studentPinAsString: mark.student_pin_as_string,
+          firstName: mark.first_name,
+          lastName: mark.last_name,
+          midName: mark.mid_name,
+          markType: mark.mark_type,
+          oldMark: mark.old_mark,
+          customMark: mark.custom_mark,
+          absentType: mark.absent_type,
+          absentReason: mark.absent_reason,
+          lateMinutes: mark.late_minutes,
+          createdAt: mark.created_at ? new Date(mark.created_at) : undefined,
+          updatedAt: mark.updated_at ? new Date(mark.updated_at) : undefined,
+        }))
+      }));
+
+      setSchedules(processedData);
     } catch (e: any) {
       setError(e.message || "Error fetching grades");
     } finally {
@@ -167,18 +81,6 @@ function StudentGrades(): JSX.Element {
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const getMarksBySubject = () => {
-    const map = new Map<SubjectModel, MarkModel[]>();
-    schedules.forEach(s => {
-      if (!s.subject || !s.marks) return;
-      if (!map.has(s.subject)) map.set(s.subject, []);
-      s.marks.forEach(mark => {
-        map.get(s.subject!)?.push({ ...mark, teacher: s.teacher });
-      });
-    });
-    return Array.from(map.entries());
-  };
-
   const handleSubjectClick = (subject: SubjectModel, marks: MarkModel[]) => {
     setSelectedSubject(subject);
     setSelectedMarks(marks);
@@ -186,17 +88,17 @@ function StudentGrades(): JSX.Element {
   };
 
   const buildTermContent = () => {
-    const subjectMarks = getMarksBySubject();
+    const subjectMarks = getMarksBySubject({ schedules: schedules });
 
     if (subjectMarks.length === 0) {
-      return <div style={{ textAlign: 'center', padding: '40px 0' }}>Нет данных</div>;
+      return <div style={{ textAlign: 'center', padding: '40px 0' }}>{t('no_data')}</div>;
     }
 
     return (
       <div style={{ padding: '0' }}>
         {subjectMarks.map(([subject, marks], idx) => {
           const average = calculateAverage(marks);
-          const firstLetter = languageCode === 'ru'
+          const firstLetter = currentLanguage === 'ru'
             ? subject.nameRu?.substring(0, 1)
             : subject.nameKg?.substring(0, 1);
 
@@ -234,7 +136,7 @@ function StudentGrades(): JSX.Element {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                     <div style={{ flex: 1, minWidth: 0, marginRight: '12px' }}>
                       <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                        {languageCode === 'ru' ? subject.nameRu : subject.nameKg}
+                        {currentLanguage === 'ru' ? subject.nameRu : subject.nameKg}
                       </div>
                       <div style={{ fontSize: '13px', color: '#666' }}>
                         {marks[0]?.teacher?.lastName} {marks[0]?.teacher?.firstName}
@@ -247,7 +149,7 @@ function StudentGrades(): JSX.Element {
 
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
                     {marks.map((mark, markIdx) => (
-                      <MarkContainer key={markIdx} mark={mark} />
+                      <MarkItem key={markIdx} mark={mark} language={currentLanguage} />
                     ))}
                   </div>
                 </div>
@@ -265,7 +167,7 @@ function StudentGrades(): JSX.Element {
     const dateEntries = Array.from(dateGroups.entries());
 
     if (dateEntries.length === 0) {
-      return <div style={{ textAlign: 'center', padding: '40px 0' }}>Нет данных</div>;
+      return <div style={{ textAlign: 'center', padding: '40px 0' }}>{t('no_data')}</div>;
     }
 
     return (
@@ -278,7 +180,7 @@ function StudentGrades(): JSX.Element {
               </div>
 
               {marks.map((mark, markIdx) => {
-                const firstLetter = languageCode === 'ru'
+                const firstLetter = currentLanguage === 'ru'
                   ? mark.subject?.nameRu?.substring(0, 1)
                   : mark.subject?.nameKg?.substring(0, 1);
 
@@ -308,10 +210,10 @@ function StudentGrades(): JSX.Element {
                         <div style={{ flex: 1, minWidth: 0, marginRight: '12px' }}>
                           <div>
                             <span style={{ fontWeight: 'bold', fontSize: '14px' }}>
-                              {languageCode === 'ru' ? mark.subject?.nameRu : mark.subject?.nameKg}
+                              {currentLanguage === 'ru' ? mark.subject?.nameRu : mark.subject?.nameKg}
                             </span>
                             <span style={{ fontSize: '13px', color: '#666', marginLeft: '8px' }}>
-                              ({getMarkTypeLabel(mark.markType)})
+                              ({getMarkTypeLabel(t, mark.mark_type)})
                             </span>
                           </div>
                           <div style={{ fontSize: '13px', color: '#666' }}>
@@ -319,7 +221,7 @@ function StudentGrades(): JSX.Element {
                           </div>
                         </div>
                         <div style={{ flexShrink: 0 }}>
-                          <MarkContainer mark={mark} />
+                          <MarkItem mark={mark} language={currentLanguage} />
                         </div>
                       </div>
                     </div>
@@ -342,7 +244,7 @@ function StudentGrades(): JSX.Element {
         style={{ height: "100vh", overflowY: "auto", padding: "16px", backgroundColor: '#f8f9fa' }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h2 style={{ margin: 0 }}>Оценки</h2>
+          <h2 style={{ margin: 0 }}>{t('menu.grades')}</h2>
 
           <div style={{ position: 'relative' }}>
             <button
@@ -357,7 +259,7 @@ function StudentGrades(): JSX.Element {
                 fontSize: '14px'
               }}
             >
-              {term} четверть ▼
+              {term} {t('quarter')} ▼
             </button>
 
             {showDropdown && (
@@ -373,22 +275,22 @@ function StudentGrades(): JSX.Element {
                 zIndex: 100,
                 minWidth: '120px'
               }}>
-                {[1, 2, 3, 4].map(t => (
+                {[1, 2, 3, 4].map(y => (
                   <div
-                    key={t}
+                    key={y}
                     onClick={() => {
-                      setTerm(t);
+                      setTerm(y);
                       setShowDropdown(false);
                     }}
                     style={{
                       padding: '8px 16px',
                       cursor: 'pointer',
-                      backgroundColor: term === t ? '#f0f0f0' : 'white'
+                      backgroundColor: term === y ? '#f0f0f0' : 'white'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = term === t ? '#f0f0f0' : 'white'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = term === y ? '#f0f0f0' : 'white'}
                   >
-                    {t} четверть
+                    {y} {t('quarter')}
                   </div>
                 ))}
               </div>
@@ -412,7 +314,7 @@ function StudentGrades(): JSX.Element {
                 marginBottom: '-2px'
               }}
             >
-              По предметам
+              {t('by_topic')}
             </button>
             <button
               onClick={() => setActiveTab('date')}
@@ -428,7 +330,7 @@ function StudentGrades(): JSX.Element {
                 marginBottom: '-2px'
               }}
             >
-              По датам
+              {t('by_date')}
             </button>
           </div>
         </div>
@@ -488,7 +390,7 @@ function StudentGrades(): JSX.Element {
           onHide={() => setShowDialog(false)}
           subject={selectedSubject}
           marks={selectedMarks}
-          languageCode={languageCode}
+          languageCode={currentLanguage}
         />
       )}
 
